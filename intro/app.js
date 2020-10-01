@@ -6,14 +6,19 @@ const path = require('path');
 // NPM modules
 const app = express();
 
+app.set('view engine', 'pug');
+// This is the default so we don't need to use it
+app.set('views', 'views');
+
 // Separate files
-const adminRoutes = require('./routes/admin');
+const adminData = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 
 app.use(bodyParser.urlencoded());
+app.use(express.static(path.join(__dirname, 'public')));
 
 // can use routes like normal middleware
-app.use('/admin', adminRoutes);
+app.use('/admin', adminData.routes);
 app.use(shopRoutes);
 
 app.use((req, res, next) => {
