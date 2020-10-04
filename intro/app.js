@@ -7,7 +7,7 @@ const path = require('path');
 const app = express();
 
 app.set('view engine', 'pug');
-// This is the default so we don't need to use it
+// This is the default so it's unnecessary, but showing for clarity
 app.set('views', 'views');
 
 // Separate files
@@ -22,7 +22,7 @@ app.use('/admin', adminData.routes);
 app.use(shopRoutes);
 
 app.use((req, res, next) => {
-  res.status(404).sendFile(path.join(__dirname, 'views', '404.html'));
+  res.status(404).render('404', { pageTitle: 'Page Not Found'});
 });
 
 app.listen(3000);
