@@ -2,11 +2,20 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
+const expressHbs = require('express-handlebars');
 
 // NPM modules
 const app = express();
 
-app.set('view engine', 'pug');
+// layoutsDir is default so redundant
+app.engine('hbs', expressHbs({
+  layoutsDir: 'views/layouts/',
+  defaultLayout: 'main-layout',
+  extname: 'hbs'
+}));
+// Registering templating engine that's not built in
+// returns initialized view engine
+app.set('view engine', 'hbs');
 // This is the default so it's unnecessary, but showing for clarity
 app.set('views', 'views');
 
