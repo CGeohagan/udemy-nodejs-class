@@ -1,11 +1,12 @@
 const mongodb = require('mongodb');
 const MongoClient = mongodb.MongoClient;
+require('dotenv').config()
 
 let _db;
 
 const mongoConnect = (callback) => {
   MongoClient.connect(
-    'mongodb+srv://cgeohagan:XXmHLr2gWoVdm6S2@cluster0.fh7zr.mongodb.net/test?retryWrites=true&w=majority', 
+    process.env.DB_URI, 
     { useUnifiedTopology: true })
   .then(client => {
     console.log('Connected!');
