@@ -27,8 +27,7 @@ app.use((req, res, next) => {
   User.findById('5f8d7ae0eac6afa2ff421796')
     .then(user => {
       // Setting up so request always has dummy user
-      console.log('hi colleen user in app', user)
-      req.user = user;
+      req.user = new User(user.name, user.email, user.cart, user._id);
       next();
     })
     .catch(err => console.log(err));
