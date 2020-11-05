@@ -2,9 +2,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
+const mongoose = require('mongoose');
+require('dotenv').config();
 
 const errorController = require('./controllers/error');
-const mongoConnect = require('./util/database').mongoConnect;
 const User = require('./models/user');
 
 // NPM modules
@@ -24,10 +25,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Will only run for incoming requests
 app.use((req, res, next) => {
-  User.findById('5f8d7ae0eac6afa2ff421796')
+  User.findOne()
     .then(user => {
       // Setting up so request always has dummy user
-      req.user = new User(user.name, user.email, user.cart, user._id);
+      req.user = user;
       next();
     })
     .catch(err => console.log(err));
@@ -39,9 +40,24 @@ app.use(shopRoutes);
 
 app.use(errorController.get404);
 
-mongoConnect(() => {
-  app.listen(3000);
-});
+mongoose.connect(process.env.DB_URI)
+  .then(() => {
+    User.findOne().then(user => {
+      if (!user) {
+        const user = new User({
+          name: 'Max',
+          email: 'max@test.com',
+          cart: {
+            items: []
+          }
+        });
+        user.save();
+      }
+    })
+
+    app.listen(3000);
+  })
+  .catch(err => console.log(err));
 
 
 
