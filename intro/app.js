@@ -3,6 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const mongoose = require('mongoose');
+const session = require('express-session');
 require('dotenv').config();
 
 const errorController = require('./controllers/error');
@@ -18,10 +19,13 @@ app.set('views', 'views');
 // Separate files
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
+const authRoutes = require('./routes/auth');
 
 app.use(bodyParser.urlencoded());
 // Allows for use of public css/js files
 app.use(express.static(path.join(__dirname, 'public')));
+// in production should be a long string value
+app.use(session({ secret: 'my secret', resave: false, saveUninitialized: false }));
 
 // Will only run for incoming requests
 app.use((req, res, next) => {
@@ -37,6 +41,7 @@ app.use((req, res, next) => {
 // can use routes like normal middleware
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
+app.use(authRoutes);
 
 app.use(errorController.get404);
 
