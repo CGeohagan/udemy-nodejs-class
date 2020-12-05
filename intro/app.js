@@ -4,13 +4,20 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const mongoose = require('mongoose');
 const session = require('express-session');
+const MongoDBStore = require('connect-mongodb-session')(session);
 require('dotenv').config();
 
 const errorController = require('./controllers/error');
 const User = require('./models/user');
 
+const MONGODB_URI = process.env.DB_URI;
+
 // NPM modules
 const app = express();
+const store = new MongoDBStore({
+  uri: MONGODB_URI,
+  collection: 'sessions'
+});
 
 app.set('view engine', 'ejs');
 // This is the default so it's unnecessary, but showing for clarity
@@ -25,13 +32,23 @@ app.use(bodyParser.urlencoded());
 // Allows for use of public css/js files
 app.use(express.static(path.join(__dirname, 'public')));
 // in production should be a long string value
-app.use(session({ secret: 'my secret', resave: false, saveUninitialized: false }));
+app.use(
+  session({ 
+    secret: 'my secret',
+    resave: false,
+    saveUninitialized: false,
+    store: store
+  })
+);
 
-// Will only run for incoming requests
 app.use((req, res, next) => {
-  User.findOne()
+  if (!req.session.user) {
+    return next();
+  }
+
+  User.findById(req.session.user._id)
     .then(user => {
-      // Setting up so request always has dummy user
+      // Use session data already set to load a real user
       req.user = user;
       next();
     })
@@ -45,7 +62,7 @@ app.use(authRoutes);
 
 app.use(errorController.get404);
 
-mongoose.connect(process.env.DB_URI)
+mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     User.findOne().then(user => {
       if (!user) {

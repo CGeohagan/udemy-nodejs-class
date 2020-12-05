@@ -10,7 +10,7 @@ exports.getProducts = (req, res, next) => {
         prods: products,
         pageTitle: 'Products',
         path: '/products',
-        isAuthenticated: req.isLoggedIn
+        isAuthenticated: req.session.isLoggedIn
       });
     })
     .catch(err => console.log(err));
@@ -24,26 +24,25 @@ exports.getProduct = (req, res, next) => {
         product: product,
         pageTitle: product.title,
         path: '/products',
-        isAuthenticated: req.isLoggedIn
+        isAuthenticated: req.session.isLoggedIn
       });
     })
     .catch();
 }
 
 exports.getIndex = (req, res, next) => {
-  console.log('req', req.isLoggedIn);
-
   Product.find().then(products => {
     res.render('shop/index', {
       prods: products, 
       pageTitle: 'Shop', 
       path: '/',
-      isAuthenticated: req.isLoggedIn
+      isAuthenticated: req.session.isLoggedIn
     });
   }).catch();
 }
 
 exports.getCart = (req, res, next) => {
+  console.log(req.session);
   req.user
     .populate('cart.items.productId')
     .execPopulate()
@@ -53,7 +52,7 @@ exports.getCart = (req, res, next) => {
         path: '/cart',
         pageTitle: 'Your Cart',
         products: products,
-        isAuthenticated: req.isLoggedIn
+        isAuthenticated: req.session.isLoggedIn
       })
     })
     .catch(e => console.log(e))
@@ -110,7 +109,6 @@ exports.postOrder = (req, res, next) => {
 }
 
 exports.getOrders = (req, res, next) => {
-  console.log('req', req.isLoggedIn);
   Order.find({ 'user.userId': req.user._id })
     .then(orders => {
       console.log('orders', orders);
@@ -118,7 +116,7 @@ exports.getOrders = (req, res, next) => {
         path: '/orders',
         pageTitle: 'Your Orders',
         orders: orders,
-        isAuthenticated: req.isLoggedIn
+        isAuthenticated: req.session.isLoggedIn
       });
     })
     .catch(err => console.log(err));
